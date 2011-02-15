@@ -1,0 +1,7 @@
+The purpose of this project is to create a dynamic node.js server that can be extended indefinitely by users. At its creation, its only available feature should be to add more features.
+
+For now, it's only a quick skeleton with some sample features.
+
+Run with:
+
+node app.js
