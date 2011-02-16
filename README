@@ -2,6 +2,12 @@ The purpose of this project is to create a dynamic node.js server that can be ex
 
 For now, it's only a quick skeleton with some sample features.
 
+Requires mongodb to be installed - can be installed via your package manager or from http://www.mongodb.org
+
+Also requires the mongodb native node.js driver - can be installed with npm using "npm install mongodb" or cloned from https://github.com/christkv/node-mongodb-native
+
+These dependencies may be added to the project at some point. Live with it for now.
+
 Run with:
 
 node app.js
