@@ -1,9 +1,10 @@
 var http = require('http'),
     url = require('url'),
-    Features = require('./features.js').Features,
-    emitter = new(require('events').EventEmitter);
-
-features = new Features();
+    Features = require('./js/features.js').Features,
+    db = require('./js/database.js').db,
+    emitter = new(require('events').EventEmitter),
+    
+features = new Features(db);
 
 var app = http.createServer(function (req, res) {
     features.execute(req, res, function(msg, success) {
