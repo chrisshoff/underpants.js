@@ -7,12 +7,14 @@ function Features() {
 
     this.execute = function(req, res, callback) {
         var path = this.parse_url(req.url, false).pathname;
+        var method = req.method;
         var success;
         var msg = "";
 
-        console.log("Executing feature for path: " + path);
-        if (this.feature_list[path]) {
-            this.feature_list[path].execute(this, req, res, function(feature_success) {
+        console.log("Executing feature for path: " + method + path);
+        var the_feature = this.feature_list[path] && this.feature_list[path][method];
+        if (the_feature) {
+            the_feature.execute(this, req, res, function(feature_success) {
                 if(feature_success) {
                     msg = "Feature executed successfully.";
                     success = true;
@@ -20,14 +22,14 @@ function Features() {
                     msg = "Feature not executed successfully.";
                     success = false;
                 }
+                callback(msg, success);
             });
        
         } else {
             msg = "Feature not found.";     
             success = false;
+            callback(msg, success); 
         }
-        
-        callback(msg, success); 
     }
 }
 
