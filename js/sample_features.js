@@ -46,7 +46,7 @@ add  = {
 fetch_all = {
     execute : function(features, req, res, callback) {
         feature_list = features.feature_list;
-        features.db.get_all_features(function(stored_feature_list) {
+        features.db.get_all_features(features.db, function(stored_feature_list) {
             res.writeHead(200, {'Content-Type' : 'text/html'});
             res.write("<h1>Available Features:</h1>");
             for (p in feature_list) {
@@ -55,8 +55,7 @@ fetch_all = {
                     res.write(link + " : " + features.feature_list[p][m].doc() + "<br />");
                 }
             }
-            console.log("Feature list:");
-            console.log(stored_feature_list);
+
             for (q in stored_feature_list) {
                 feature = stored_feature_list[q];
                 try {
@@ -77,7 +76,7 @@ fetch_all = {
 
 clear_db = {
     execute : function(features, req, res, callback) {
-        features.db.clear_features();
+        features.db.clear_features(features.db);
         res.writeHead(200, {'Content-Type' : 'text/html'});
         res.write("Database has been cleared.");
         res.end();
@@ -90,7 +89,7 @@ clear_db = {
 
 test_db = {
     execute : function(features, req, res, callback) {
-        features.db.add_fake_feature();
+        features.db.add_fake_feature(features.db);
         res.writeHead(200, {'Content-Type' : 'text/html'});
         res.write("New test feature added.");
         res.end();
