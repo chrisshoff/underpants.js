@@ -58,14 +58,16 @@ fetch_all = {
                     res.write(link + " : " + features.feature_list[p][m].doc() + "<br />");
                 }
             }
-
+            res.write("<h2>Stored features:</h2>")
             for (q in stored_feature_list) {
                 feature = stored_feature_list[q];
+                res.write("Name: " + feature.name + "<br/>")
+                res.write("Url: " + feature.method + " at " + feature.url + "<br/>")
                 try {
                     feature_code = eval('(' + feature.code + ')');
-                    res.write(feature.name + " (" + feature.method + ") : " + feature_code.doc() + "<br />");
+                    res.write("Doc: " + feature_code.doc() + "<br />");
                 } catch(e) {
-                    res.write(feature.name + " :  Could not evaluate feature.<br />");                    
+                    res.write("Doc: Error evaluating feature.<br />");                    
                 }
             }
             res.end();
