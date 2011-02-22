@@ -80,7 +80,7 @@ var test_feature = {
     name : "test_feature",
     url : "/test",
     method : "GET",
-    code : "{ execute: function() {\nalert('did something');\n}, doc: function() {\nreturn 'this is a test';\n}}"
+    code : "{execute:function(){alert('did something');},doc:function(){return 'this is a test';}}"
 };
 
 /**
