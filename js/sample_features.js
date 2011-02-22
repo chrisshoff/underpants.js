@@ -1,4 +1,5 @@
-var querystring = require('querystring');
+var querystring = require('querystring'),
+    Feature_Manager = require('./feature_manager.js').Feature_Manager;
     
 
 hello_world = { 
@@ -24,6 +25,8 @@ add  = {
             new_feature["method"] = post_data.method;
             new_feature["code"] = post_data.code;
             
+            Feature_Manager.save(new_feature, features.db, function(status) {});
+            
         }).addListener('end', function () {
             res.writeHead(200, {'Content-Type' : 'text/html'});
             res.write("Successfully added");
@@ -46,7 +49,7 @@ add  = {
 fetch_all = {
     execute : function(features, req, res, callback) {
         feature_list = features.feature_list;
-        features.db.get_all_features(features.db, function(stored_feature_list) {
+        Feature_Manager.get_all(features.db, function(stored_feature_list) {
             res.writeHead(200, {'Content-Type' : 'text/html'});
             res.write("<h1>Available Features:</h1>");
             for (p in feature_list) {
@@ -76,7 +79,7 @@ fetch_all = {
 
 clear_db = {
     execute : function(features, req, res, callback) {
-        features.db.clear_features(features.db);
+        Feature_Manager.clear_all(features.db);
         res.writeHead(200, {'Content-Type' : 'text/html'});
         res.write("Database has been cleared.");
         res.end();
@@ -89,7 +92,7 @@ clear_db = {
 
 test_db = {
     execute : function(features, req, res, callback) {
-        features.db.add_fake_feature(features.db);
+        Feature_Manager.add_fake_feature(features.db);
         res.writeHead(200, {'Content-Type' : 'text/html'});
         res.write("New test feature added.");
         res.end();
