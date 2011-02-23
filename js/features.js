@@ -12,7 +12,7 @@ function Features(db) {
         var success;
         var msg = "";
 
-        console.log("Executing feature for path: " + method + path);
+        log.info("Executing feature for path: " + method + path);
         var the_feature = this.feature_list[path] && this.feature_list[path][method];
         if (the_feature) {
             the_feature.execute(this, req, res, function(feature_success) {
