@@ -63,9 +63,10 @@ fetch_all = {
                 feature = stored_feature_list[q];
                 res.write("Name: " + feature.name + "<br/>")
                 res.write("Url: " + feature.method + " at " + feature.url + "<br/>")
+
                 try {
-                    feature_code = eval('(' + feature.code + ')');
-                    res.write("Doc: " + feature_code.doc() + "<br />");
+                    feature.code = eval('(' + feature.code + ')');
+                    res.write("Doc: " + feature.code.doc() + "<br />");
                 } catch(e) {
                     res.write("Doc: Error evaluating feature.<br />");                    
                 }

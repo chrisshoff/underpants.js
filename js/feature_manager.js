@@ -1,54 +1,85 @@
+
 // Access db stuff for features.
 var Feature_Manager = {
-    // Saves a feature. MmmHmm.
-    save : function(feature, the_db, callback) {
-            the_db.open(function(err, db) {
-                the_db.collection('features', function(err, collection) {
-                    collection.insert(feature);
-                    console.log('Feature has been persisted.');
-                    callback(true);
+    
+    db : undefined,
+    connection : undefined,
+    
+    setDB : function(a_db) {
+        this.db = a_db;
+    },
+    
+    setConnection : function(the_connection) {
+        this.connection = the_connection;
+    },
+    
+    // Grabs the features collection.
+    _get_feature_collection : function(callback) {
+        // If we have a connection, use it
+        if (this.db.state == 'connected') {
+            this.db.collection('features', function(err, collection) {
+                callback(collection);
+            });
+        } else {
+            this.db.open(function(err, db) {
+                db.collection('features', function(err, collection) {
+                    callback(collection);
                 });
             });
+        }
+    },
+    
+    // Saves a feature. MmmHmm.
+    save : function(feature, callback) {
+        this._get_feature_collection(function(collection) {
+            collection.insert(feature);
+            console.log('Feature has been persisted.');
+            callback(true);
+        });
     },
     // Retrieves all features. Duh.
-    get_all : function(the_db, callback) {
-                the_db.open(function(err, db) {
-                    the_db.collection('features', function(err, collection) {
-                        collection.count(function(err, count) {
-                            console.log("There are " + count + " records");
-                            features = [];
-                            collection.find(function(err, cursor) {
-                                cursor.each(function(err, item) {
-                                    if (item != null) {
-                                        features.push(item);
-                                    } else {
-                                        callback(features);     
-                                    }
-                                });
-                            });
-                        });
+    get_all : function(callback) {
+        this._get_feature_collection(function(collection) {
+            collection.count(function(err, count) {
+                features = [];
+                collection.find(function(err, cursor) {
+                    cursor.each(function(err, item) {
+                        if (item != null) {
+                            features.push(item);
+                        } else {
+                            callback(features);     
+                        }
                     });
-                });  
+                });
+            });
+        });  
     },
     // Removes the features collection.
-    clear_all : function(the_db) {
-                    the_db.open(function(err, db) {
-                        the_db.collection('features', function(err, collection) {
-                            collection.remove(function(err, collection) {
-                                console.log('Features db collection has been cleared.');
-                            });
-                        });
-                    });
+    clear_all : function() {
+        this._get_feature_collection(function(collection) {
+            collection.remove(function(err, collection) {
+                console.log('Features db collection has been cleared.');
+            });
+        });
+    },
+    // Finds a feature by path and method
+    find : function(path, method, feature_list, callback) {
+            this.get_all(function(features) {
+                for (feature in features) {
+                    if (feature.path == path && feature.method == method) callback(feature);
+                }
+                callback(feature_list[path] && feature_list[path][method]);         
+            });
     },
     // Adds the fake feature.
-    add_fake_feature : function(the_db) {
-                        Feature_Manager.save(test_feature, the_db, function(status) {
-                            if (status) {
-                                console.log("Feature was saved and we're done.");        
-                            } else {
-                                console.log("Feature didn't save correctly");
-                            }
-                        });
+    add_fake_feature : function() {
+        this.save(test_feature, function(status) {
+            if (status) {
+                console.log("Feature was saved and we're done.");        
+            } else {
+                console.log("Feature didn't save correctly");
+            }
+        });
     }
 }
 
