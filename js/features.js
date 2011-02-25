@@ -4,7 +4,8 @@ var url = require("url"),
 
 function Features(db) {
     Feature_Manager.setDB(db);
-    this.feature_list = sample_features.get_sample_feature_list();
+    Feature_Manager.load_sample_features(sample_features.get_sample_feature_list());
+
     this.parse_url = function(url_string, parse_qs) { return url.parse(url_string, parse_qs); }
 
     this.execute = function(req, res, callback) {
@@ -14,9 +15,9 @@ function Features(db) {
         var msg = "";
 
         console.log("Executing feature for path: " + method + path);
-        Feature_Manager.find(path, method, this.feature_list, function(the_feature) {
+        Feature_Manager.find(path, method, function(the_feature) {
             if (the_feature) {
-                the_feature.execute(this, req, res, function(feature_success) {
+                the_feature.execute(Feature_Manager, req, res, function(feature_success) {
                     if(feature_success) {
                         msg = "Feature executed successfully.";
                         success = true;

@@ -4,6 +4,7 @@ var Feature_Manager = {
     
     db : undefined,
     connection : undefined,
+    sample_features : undefined,
     
     setDB : function(a_db) {
         this.db = a_db;
@@ -21,8 +22,8 @@ var Feature_Manager = {
                 callback(collection);
             });
         } else {
-            this.db.open(function(err, db) {
-                db.collection('features', function(err, collection) {
+            this.db.open(function(err, the_db) {
+                the_db.collection('features', function(err, collection) {
                     callback(collection);
                 });
             });
@@ -38,22 +39,21 @@ var Feature_Manager = {
         });
     },
     // Retrieves all features. Duh.
-    get_all : function(callback) {
+    get_all : function(get_all_callback) {
         this._get_feature_collection(function(collection) {
-            collection.count(function(err, count) {
-                features = [];
-                collection.find(function(err, cursor) {
-                    cursor.each(function(err, item) {
-                        if (item != null) {
-                            features.push(item);
-                        } else {
-                            callback(features);     
-                        }
-                    });
+            collection.find(function(err, cursor) {
+                var features = [];
+                cursor.each(function(err, item) {
+                    if (item != null) {
+                        features.push(item);
+                    } else {
+                        get_all_callback(features);
+                    }
                 });
             });
         });  
     },
+
     // Removes the features collection.
     clear_all : function() {
         this._get_feature_collection(function(collection) {
@@ -63,12 +63,20 @@ var Feature_Manager = {
         });
     },
     // Finds a feature by path and method
-    find : function(path, method, feature_list, callback) {
+    find : function(path, method, find_callback) {
+            var feature_list = this.get_sample_features();
             this.get_all(function(features) {
+                var found_feature;
                 for (feature in features) {
-                    if (feature.path == path && feature.method == method) callback(feature);
+                    if (feature.path == path && feature.method == method) {
+                        found_feature = feature;
+                    }
                 }
-                callback(feature_list[path] && feature_list[path][method]);         
+                if (found_feature) {
+                    find_callback(found_feature);
+                } else {
+                    find_callback(feature_list[path] && feature_list[path][method]);         
+                }
             });
     },
     // Adds the fake feature.
@@ -80,6 +88,14 @@ var Feature_Manager = {
                 console.log("Feature didn't save correctly");
             }
         });
+    },
+    
+    load_sample_features : function(feature_list) {
+        this.sample_features = feature_list;
+    },
+    
+    get_sample_features : function() {
+        return this.sample_features;
     }
 }
 
