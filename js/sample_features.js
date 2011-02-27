@@ -59,7 +59,7 @@ fetch_all = {
             for (q in stored_feature_list) {
                 feature = stored_feature_list[q];
                 try {
-                    feature_code = eval(feature.code);
+                    feature_code = eval('(' + feature.code + ')');
                     res.write(feature.name + " : " + feature_code.doc() + "<br />");
                 } catch(e) {
                     res.write(feature.name + " :  Could not evaluate feature.<br />");                    
