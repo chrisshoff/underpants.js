@@ -1,3 +1,6 @@
+var Log = require('./log.js');
+
+log = new Log(Log.INFO);
 
 // Access db stuff for features.
 var Feature_Manager = {
@@ -34,7 +37,6 @@ var Feature_Manager = {
     save : function(feature, callback) {
         this._get_feature_collection(function(collection) {
             collection.insert(feature);
-            console.log('Feature has been persisted.');
             callback(true);
         });
     },
@@ -58,7 +60,7 @@ var Feature_Manager = {
     clear_all : function() {
         this._get_feature_collection(function(collection) {
             collection.remove(function(err, collection) {
-                console.log('Features db collection has been cleared.');
+                log.info('Features db collection has been cleared.');
             });
         });
     },
@@ -83,9 +85,9 @@ var Feature_Manager = {
     add_fake_feature : function() {
         this.save(test_feature, function(status) {
             if (status) {
-                console.log("Feature was saved and we're done.");        
+                log.debug("Feature was saved and we're done.");        
             } else {
-                console.log("Feature didn't save correctly");
+                log.debug("Feature didn't save correctly");
             }
         });
     },

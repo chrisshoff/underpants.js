@@ -1,6 +1,9 @@
 var url = require("url"),
     Feature_Manager = require("./feature_manager.js").Feature_Manager,
-    sample_features = require("./sample_features.js");
+    sample_features = require("./sample_features.js"),
+    Log = require('./log.js');
+
+log = new Log(Log.INFO);;
 
 function Features(db) {
     Feature_Manager.setDB(db);
@@ -14,19 +17,23 @@ function Features(db) {
         var success;
         var msg = "";
 
-        console.log("Executing feature for path: " + method + path);
+        log.info("Executing feature for path: " + method + path);
         Feature_Manager.find(path, method, function(the_feature) {
             if (the_feature) {
-                the_feature.execute(Feature_Manager, req, res, function(feature_success) {
-                    if(feature_success) {
-                        msg = "Feature executed successfully.";
-                        success = true;
-                    } else {
-                        msg = "Feature not executed successfully.";
-                        success = false;
-                    }
-                    callback(msg, success);
-                });
+                try {
+                    the_feature.execute(Feature_Manager, req, res, function(feature_success) {
+                        if(feature_success) {
+                            msg = "Feature executed successfully.";
+                            success = true;
+                        } else {
+                            msg = "Feature not executed successfully.";
+                            success = false;
+                        }
+                        callback(msg, success);
+                    });
+                } catch (e) {
+                    callback("Exception thrown during feature execution", false);
+                }
 
             } else {
                 msg = "Feature not found.";     

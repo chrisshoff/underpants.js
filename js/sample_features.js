@@ -1,5 +1,7 @@
-var querystring = require('querystring');
+var querystring = require('querystring'),
+    Log = require('./log.js');
     
+log = new Log(Log.INFO);
 
 hello_world = { 
     execute : function(Feature_Manager, req, res, callback) {
@@ -15,6 +17,7 @@ hello_world = {
 add  = {
     execute : function(Feature_Manager, req, res, callback) {
         
+        log.info("Adding a new feature.")
         req.addListener('data', function (POST) {
             new_feature = {}
             post_data = querystring.parse(POST);
