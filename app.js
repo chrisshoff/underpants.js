@@ -6,7 +6,7 @@ var http = require('http'),
     Log = require('./js/log.js');
     
 features = new Features(db);
-log = new Log(Log.INFO);
+log = new Log(Log.DEBUG);
 
 var app = http.createServer(function (req, res) {
     features.execute(req, res, function(msg, success) {
@@ -20,4 +20,4 @@ var app = http.createServer(function (req, res) {
     });
 });
 app.listen(8080);
-log.info('Server running at http://127.0.0.1:8080/');
+log.info('server running at http://127.0.0.1:8080/');

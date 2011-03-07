@@ -1,9 +1,10 @@
 var querystring = require('querystring'),
-    Feature_Manager = require('./feature_manager.js').Feature_Manager;
+    Log = require('./log.js');
     
+log = new Log(Log.INFO);
 
 hello_world = { 
-    execute : function(features, req, res, callback) {
+    execute : function(Feature_Manager, req, res, callback) {
         res.writeHead(200, {'Content-Type' : 'text/html'});
         res.end("Hello, World!");
         callback(true); 
@@ -14,8 +15,9 @@ hello_world = {
 };
 
 add  = {
-    execute : function(features, req, res, callback) {
+    execute : function(Feature_Manager, req, res, callback) {
         
+        log.info("Adding a new feature.")
         req.addListener('data', function (POST) {
             new_feature = {}
             post_data = querystring.parse(POST);
@@ -25,7 +27,7 @@ add  = {
             new_feature["method"] = post_data.method;
             new_feature["code"] = post_data.code;
             
-            Feature_Manager.save(new_feature, features.db, function(status) {});
+            Feature_Manager.save(new_feature, function(status) {});
             
         }).addListener('end', function () {
             res.writeHead(200, {'Content-Type' : 'text/html'});
@@ -47,15 +49,15 @@ add  = {
 }
 
 fetch_all = {
-    execute : function(features, req, res, callback) {
-        feature_list = features.feature_list;
-        Feature_Manager.get_all(features.db, function(stored_feature_list) {
+    execute : function(Feature_Manager, req, res, callback) {
+        feature_list = Feature_Manager.get_sample_features();
+        Feature_Manager.get_all(function(stored_feature_list) {
             res.writeHead(200, {'Content-Type' : 'text/html'});
             res.write("<h1>Available Features:</h1>");
             for (p in feature_list) {
                 for (m in feature_list[p]) {
                     link = "<a href='" + p + "'>" + p + "</a> (" + m + ")";
-                    res.write(link + " : " + features.feature_list[p][m].doc() + "<br />");
+                    res.write(link + " : " + feature_list[p][m].doc() + "<br />");
                 }
             }
             res.write("<h2>Stored features:</h2>")
@@ -63,9 +65,10 @@ fetch_all = {
                 feature = stored_feature_list[q];
                 res.write("Name: " + feature.name + "<br/>")
                 res.write("Url: " + feature.method + " at " + feature.url + "<br/>")
+
                 try {
-                    feature_code = eval('(' + feature.code + ')');
-                    res.write("Doc: " + feature_code.doc() + "<br />");
+                    feature.code = eval('(' + feature.code + ')');
+                    res.write("Doc: " + feature.code.doc() + "<br />");
                 } catch(e) {
                     res.write("Doc: Error evaluating feature.<br />");                    
                 }
@@ -80,8 +83,8 @@ fetch_all = {
 };
 
 clear_db = {
-    execute : function(features, req, res, callback) {
-        Feature_Manager.clear_all(features.db);
+    execute : function(Feature_Manager, req, res, callback) {
+        Feature_Manager.clear_all();
         res.writeHead(200, {'Content-Type' : 'text/html'});
         res.write("Database has been cleared.");
         res.end();
@@ -93,8 +96,8 @@ clear_db = {
 }
 
 test_db = {
-    execute : function(features, req, res, callback) {
-        Feature_Manager.add_fake_feature(features.db);
+    execute : function(Feature_Manager, req, res, callback) {
+        Feature_Manager.add_fake_feature();
         res.writeHead(200, {'Content-Type' : 'text/html'});
         res.write("New test feature added.");
         res.end();
@@ -106,7 +109,7 @@ test_db = {
 }
 
 hello_name = {
-    execute : function(features, req, res, callback) {
+    execute : function(Feature_Manager, req, res, callback) {
         res.writeHead(200, {'Content-Type' : 'text/html'});
         qs = features.parse_url(req.url, true).query;
         if (qs && qs.n) {

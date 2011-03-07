@@ -1,9 +1,14 @@
 var url = require("url"),
-    sample_features = require("./sample_features.js");
+    Feature_Manager = require("./feature_manager.js").Feature_Manager,
+    sample_features = require("./sample_features.js"),
+    Log = require('./log.js');
+
+log = new Log(Log.INFO);;
 
 function Features(db) {
-    this.db = db;
-    this.feature_list = sample_features.get_sample_feature_list(this.db);
+    Feature_Manager.setDB(db);
+    Feature_Manager.load_sample_features(sample_features.get_sample_feature_list());
+
     this.parse_url = function(url_string, parse_qs) { return url.parse(url_string, parse_qs); }
 
     this.execute = function(req, res, callback) {
@@ -13,24 +18,29 @@ function Features(db) {
         var msg = "";
 
         log.info("Executing feature for path: " + method + path);
-        var the_feature = this.feature_list[path] && this.feature_list[path][method];
-        if (the_feature) {
-            the_feature.execute(this, req, res, function(feature_success) {
-                if(feature_success) {
-                    msg = "Feature executed successfully.";
-                    success = true;
-                } else {
-                    msg = "Feature not executed successfully.";
-                    success = false;
+        Feature_Manager.find(path, method, function(the_feature) {
+            if (the_feature) {
+                try {
+                    the_feature.execute(Feature_Manager, req, res, function(feature_success) {
+                        if(feature_success) {
+                            msg = "Feature executed successfully.";
+                            success = true;
+                        } else {
+                            msg = "Feature not executed successfully.";
+                            success = false;
+                        }
+                        callback(msg, success);
+                    });
+                } catch (e) {
+                    callback("Exception thrown during feature execution", false);
                 }
-                callback(msg, success);
-            });
-       
-        } else {
-            msg = "Feature not found.";     
-            success = false;
-            callback(msg, success); 
-        }
+
+            } else {
+                msg = "Feature not found.";     
+                success = false;
+                callback(msg, success); 
+            }
+        });
     }
 }
 
